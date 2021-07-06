@@ -1,0 +1,7 @@
+pandas
+openpyxl
+mechanicalsoup
+BeautifulSoup4
+requests
+tqdm
+xlrd
