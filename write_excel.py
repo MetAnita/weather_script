@@ -1,3 +1,4 @@
+''''Write historical mm and t data from meteo to excel file'''
 from pathlib import Path
 import openpyxl
 import xlrd
