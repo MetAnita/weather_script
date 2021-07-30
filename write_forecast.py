@@ -24,7 +24,7 @@ def update_dates(sample_file_path):
             # cell.font = Font(color="00000080", italic=True)  # for testing write in blue
             print(cell.value, end=" ")
 
-    xlsx_filename = "RU05_laika_apstakli_fakts_prognoze_%s.xlsx" % date.today().strftime('%d%m%Y')
+    xlsx_filename = "laika_apstakli_fakts_prognoze_%s.xlsx" % date.today().strftime('%d%m%Y')
     completename = os.path.join(result_folder_path, xlsx_filename)
     wb_obj.save(completename)
     return completename
