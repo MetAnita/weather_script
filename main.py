@@ -1,6 +1,4 @@
 from datetime import date, timedelta
-from bs4 import BeautifulSoup
-from urllib.request import urlopen
 import mechanicalsoup
 import os
 from pathlib import Path
@@ -9,25 +7,6 @@ import requests
 import urllib
 
 
-url = "https://new.meteo.lv/meteorologija-datu-meklesana/?nid=461"
-# url = "https://www.meteo.lv/meteorologija-datu-meklesana/?nid=461"
-
-page = None
-while page is None:
-    try:
-        page = urlopen(url, timeout=30)
-        print('page opne')
-    except urllib.error.HTTPError:
-        print('server error, lets try reopening page')
-        time.sleep(5)
-    except mechanicalsoup.utils.LinkNotFoundError:
-        print('error, lets repeat opening')
-        time.sleep(5)
-
-# page = urlopen(url)
-html_bytes = page.read()
-html = html_bytes.decode("utf-8")
-soup = BeautifulSoup(html, 'html.parser')
 
 # headers for browser to prevent request blocking
 headers = requests.utils.default_headers()
@@ -56,7 +35,7 @@ week_ago = (date.today() - timedelta(days=7)).strftime('%d.%m.%Y')  # datums no
 def read_weather_history(station, day_from, day_to, param1, param2, station_name):
     #create_request
     browser = mechanicalsoup.StatefulBrowser()
-    browser.open("https://new.meteo.lv/meteorologija-datu-meklesana/", headers=headers)
+    browser.open("https://www.meteo.lv/meteorologija-datu-meklesana/", headers=headers)
     browser.select_form('form[action="/meteorologija-datu-meklesana/?"]')
 
     #Fill web form
