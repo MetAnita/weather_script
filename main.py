@@ -7,7 +7,6 @@ import requests
 import urllib
 
 
-
 # headers for browser to prevent request blocking
 headers = requests.utils.default_headers()
 headers.update({
