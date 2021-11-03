@@ -2,18 +2,9 @@
 from pathlib import Path
 import openpyxl
 import xlrd
-from datetime import date, timedelta
-import os
-
-yesterday = (date.today() - timedelta(days=1)).strftime('%d.%m.%Y')  # datums līdz
-week_ago = (date.today() - timedelta(days=7)).strftime('%d.%m.%Y')
+from write_info import completename, station_history
 
 station_dict = {'Ainaži': 'ainazi-47075', 'Alūksne': 'aluksne-4124', 'Bauska': 'bauska-4139', 'Daugavpils': 'daugavpils-4177', 'Dobele': 'dobele-4137', 'Gulbene': 'gulbene-4125', 'Jelgava': 'jelgava-4138', 'Kalnciems': 'kalnciems-322319', 'Kolka': 'kolka-47057', 'Kuldīga': 'kuldiga-4106', 'Lielpeči': 'ogre-47066', 'Liepāja': 'liepaja-4134', 'Mērsrags': 'mersrags-47065', 'Pāvilosta': 'pavilosta-47067', 'Piedruja': 'piedruja-322361', 'Rēzekne': 'rezekne-4140', 'Rīga': 'riga-4136', 'Rūjiena': 'rujiena-47073', 'Saldus': 'saldus-4135', 'Sigulda': 'sigulda-4103', 'Sīļi': 'silajani-322513', 'Skrīveri': 'skriveri-322563', 'Stende': 'stende-47083', 'Vičaki': 'ventspils-4123', 'Zīlāni': 'zilani-322369', 'Zosēni': 'vecpiebalga-322623'}
-
-result_folder_path = Path('results')
-xlsx_filename = "laika_apstakli_fakts_prognoze_%s.xlsx" % date.today().strftime('%d%m%Y')
-# final_wb = openpyxl.load_workbook('sample_excel.xlsx') # TODO add inside function as var
-completename = os.path.join(result_folder_path, xlsx_filename)
 final_wb = openpyxl.load_workbook(completename)
 final_t_sheet = final_wb['t_fakts']
 
@@ -69,7 +60,7 @@ def write_data_chunk(st_row, src_ws, dest_ws):
 
 for key in station_dict:
     print(key)
-    st_path = Path('data', date.today().strftime('%Y%m%d'), '%s.xls' % key) #TODO automate folder name
+    st_path = Path(station_history, '%s.xls' % key)
     write_t_mm_history(st_path, completename, key)
 
-#TODO check that excel data file has all rows
+#TODO check that excel source data file has all rows
