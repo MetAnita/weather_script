@@ -24,7 +24,7 @@ browser["iDateTill"] = yesterday
 response = browser.submit_selected()
 
 # create changeable file name
-save_path = 'C:/Users/Admin/PycharmProjects/weather_script/data'  # SHOULD CHANGE
+save_path = '/data'  # SHOULD CHANGE
 filename = "abi_%s%s.xls" % (yesterday, station)
 completename = os.path.join(save_path, filename)
 output = open(completename, 'wb')

@@ -31,7 +31,6 @@ def update_dates(sample_file_path):
             dd += 1
             val = (date.today() + timedelta(days=dd)).strftime('%d.%m.%Y')
             cell.value = val
-            # cell.font = Font(color="00000080", italic=True)  # for testing write in blue
             print(cell.value, end=" ")
 
     xlsx_filename = "laika_apstakli_fakts_prognoze_%s.xlsx" % date.today().strftime('%d%m%Y')

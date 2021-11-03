@@ -8,7 +8,7 @@ from tqdm import trange
 import forecast
 import xlrd
 
-xlsx_file = Path('data', 'sample_excel.xlsx')
+xlsx_file = Path('../data', 'sample_excel.xlsx')
 # print('file location: ', xlsx_file)
 # wb_obj = openpyxl.load_workbook(xlsx_file)
 #
@@ -211,5 +211,5 @@ def write_data_chunk(st_row, src_ws, dest_ws):
 
 for key in station_dict:
     print(key)
-    st_path = station_path = Path('data', '20210512', 'abi_%s11.05.2021.xls' % key) #TODO automate folder name
-    write_t_mm_history(st_path, 'RU05_laika_apstakli_fakts_prognoze_sample.xlsx', key)
+    st_path = station_path = Path('../data', '20210512', 'abi_%s11.05.2021.xls' % key) #TODO automate folder name
+    write_t_mm_history(st_path, '../RU05_laika_apstakli_fakts_prognoze_sample.xlsx', key)
