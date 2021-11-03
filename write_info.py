@@ -12,3 +12,7 @@ completename = os.path.join(result_folder_path, xlsx_filename)
 
 # historical weather excel file data folder
 station_history = Path('data', date.today().strftime('%Y%m%d'))
+
+# weather stations that should be inserted multiple times in excel file
+dupl_st = ['Bauska', 'Gulbene', 'Kuldīga', 'Rūjiena', 'Stende']
+tripl_st = ['Zīlāni', 'Zosēni']
