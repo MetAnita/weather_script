@@ -2,7 +2,7 @@
 from pathlib import Path
 import openpyxl
 import xlrd
-from write_info import completename, station_history
+from write_info import completename, station_history, sample_data_filepath
 
 station_dict = {'Ainaži': 'ainazi-47075', 'Alūksne': 'aluksne-4124', 'Bauska': 'bauska-4139', 'Daugavpils': 'daugavpils-4177', 'Dobele': 'dobele-4137', 'Gulbene': 'gulbene-4125', 'Jelgava': 'jelgava-4138', 'Kalnciems': 'kalnciems-322319', 'Kolka': 'kolka-47057', 'Kuldīga': 'kuldiga-4106', 'Lielpeči': 'ogre-47066', 'Liepāja': 'liepaja-4134', 'Mērsrags': 'mersrags-47065', 'Pāvilosta': 'pavilosta-47067', 'Piedruja': 'piedruja-322361', 'Rēzekne': 'rezekne-4140', 'Rīga': 'riga-4136', 'Rūjiena': 'rujiena-47073', 'Saldus': 'saldus-4135', 'Sigulda': 'sigulda-4103', 'Sīļi': 'silajani-322513', 'Skrīveri': 'skriveri-322563', 'Stende': 'stende-47083', 'Vičaki': 'ventspils-4123', 'Zīlāni': 'zilani-322369', 'Zosēni': 'vecpiebalga-322623'}
 final_wb = openpyxl.load_workbook(completename)
@@ -23,9 +23,25 @@ def find_start_row(station):
 # write temp & rain history for one station in big excel file
 def write_t_mm_history(src_filepath, dest_filepath, station):
     station_wb = xlrd.open_workbook(src_filepath)
+    sample_wb = xlrd.open_workbook(sample_data_filepath)
     final_wb = openpyxl.load_workbook(dest_filepath)
-    t_ws = station_wb.sheet_by_name('1. tabula')
-    mm_ws = station_wb.sheet_by_name('2. tabula')
+    #validate that station excel data has 2 worksheets '1. tabula' & '2. tabula'
+    #print("The number of worksheets is {0}".format(station_wb.nsheets))
+    if station_wb.nsheets==2:
+        t_ws = station_wb.sheet_by_name('1. tabula')
+        mm_ws = station_wb.sheet_by_name('2. tabula')
+    if station_wb.nsheets==1:
+        test_ws = station_wb.sheet_by_name('1. tabula')
+        sheet_title = (test_ws.cell(0, 0) ).value # 1st row A column
+        #print(sheet_title)
+        if 'Nokrišņu daudzums' in sheet_title:
+            mm_ws = station_wb.sheet_by_name('1. tabula')
+            t_ws = sample_wb.sheet_by_name('1. tabula')
+        elif 'Gaisa temperatūra' in sheet_title:
+            t_ws = station_wb.sheet_by_name('1. tabula')
+            mm_ws = sample_wb.sheet_by_name('2. tabula')
+        else:
+            print('Problem with excel data file')
     final_t_ws = final_wb['t_fakts']
     final_mm_ws = final_wb['mm_fakts']
     # find station row?
@@ -63,4 +79,4 @@ for key in station_dict:
     st_path = Path(station_history, '%s.xls' % key)
     write_t_mm_history(st_path, completename, key)
 
-#TODO check that excel source data file has all rows
+#TODO check that excel source data file has all rows and sheets
