@@ -55,7 +55,7 @@ def read_weather_history(station, day_from, day_to, param1, param2, station_name
 
 # station_dict = {'Ainaži': 30000, 'Alūksne': 30004}    # smaller sample for tests and debug
 station_dict = {'Ainaži': 30000, 'Alūksne': 30004, 'Bauska': 30011, 'Daugavpils': 30021, 'Dobele': 30022, 'Gulbene': 30034, 'Jelgava': 30036, 'Kalnciems': 30040, 'Kolka': 30046, 'Kuldīga': 30048, 'Lielpeči': 30058, 'Liepāja': 30060, 'Mērsrags': 30072, 'Pāvilosta': 30080, 'Piedruja': 30081, 'Rēzekne': 10000180, 'Rīga': 30096, 'Rūjiena': 30100, 'Saldus': 30102, 'Sigulda': 30103, 'Sīļi': 30104, 'Skrīveri': 30105, 'Stende': 30111, 'Vičaki': 30132, 'Zīlāni': 30140, 'Zosēni': 30141}
-# station_dict = { 'Piedruja': 30081}
+# station_dict = { 'Jelgava': 30036}
 
 
 

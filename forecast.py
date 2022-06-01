@@ -126,7 +126,7 @@ def mm_temp_forecast_duplicates(station_dict, dupl, tripl):
             print('Appending data')
             stations_temp.extend(t)
             stations_mm.extend(mm)
-        time.sleep(10)
+        time.sleep(20)
     return stations_temp, stations_mm
 
 # print(temp_forecast(station_dict))
