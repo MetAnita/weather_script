@@ -20,47 +20,15 @@ def find_start_row(station):
     return row_idx
 
 
-# write temp & rain history for one station in big excel file
-def write_t_mm_history(src_filepath, dest_filepath, station):
-    station_wb = xlrd.open_workbook(src_filepath)
-    sample_wb = xlrd.open_workbook(sample_data_filepath)
-    final_wb = openpyxl.load_workbook(dest_filepath)
-    #validate that station excel data has 2 worksheets '1. tabula' & '2. tabula'
-    #print("The number of worksheets is {0}".format(station_wb.nsheets))
-    if station_wb.nsheets==2:
-        t_ws = station_wb.sheet_by_name('1. tabula')
-        mm_ws = station_wb.sheet_by_name('2. tabula')
-    if station_wb.nsheets==1:
-        test_ws = station_wb.sheet_by_name('1. tabula')
-        sheet_title = (test_ws.cell(0, 0) ).value # 1st row A column
-        #print(sheet_title)
-        if 'Nokrišņu daudzums' in sheet_title:
-            mm_ws = station_wb.sheet_by_name('1. tabula')
-            t_ws = sample_wb.sheet_by_name('1. tabula')
-        elif 'Gaisa temperatūra' in sheet_title:
-            t_ws = station_wb.sheet_by_name('1. tabula')
-            mm_ws = sample_wb.sheet_by_name('2. tabula')
-        else:
-            print('Problem with excel data file')
-    final_t_ws = final_wb['t_fakts']
-    final_mm_ws = final_wb['mm_fakts']
-    # find station row?
-    str_row = find_start_row(station)   # TODO - wrap around try except - for cases when station not found in excel wb
-    print(str_row)
-    # write temperature
-    write_data_chunk(str_row, t_ws, final_t_ws)
-    write_data_chunk(str_row, mm_ws, final_mm_ws)
-    final_wb.save(dest_filepath)
-
-
 def write_data_chunk(st_row, src_ws, dest_ws):
-    h = 2
+    h = 4
     for i in range(st_row, st_row+7):  # destination excel rows from - to
         # get each row from source file into list
-        header = src_ws.row_values(h, start_colx=0, end_colx=None)
+        #header = src_ws.row_values(h, start_colx=0, end_colx=None)
+        header = [cell.value for cell in src_ws[h]]  # h is the row index
         print(header)
         h += 1
-        if st_row == 3:  # write dates & data for first station     # TODO create different for loop without if statement - for element in a_list[1:]: print(element)
+        if st_row == 3:  # write dates & data for first station
             for j in range(4, 29):  # columns (with date column)
                 # reading cell value from source excel file
                 c = header[j - 4]
@@ -74,9 +42,33 @@ def write_data_chunk(st_row, src_ws, dest_ws):
                 dest_ws.cell(row=i, column=j).value = c
 
 
+def write_t_history(src_filepath, dest_filepath, station):
+    station_wb = openpyxl.load_workbook(src_filepath)
+    final_wb = openpyxl.load_workbook(dest_filepath)
+    t_ws = station_wb.worksheets[0]
+    final_t_ws = final_wb['t_fakts']
+    str_row = find_start_row(station)  # place where to write data in dest worksheet
+    # write temperature
+    write_data_chunk(str_row, t_ws, final_t_ws)
+    final_wb.save(dest_filepath)
+
+
+def write_mm_history(src_filepath, dest_filepath, station):
+    station_wb = openpyxl.load_workbook(src_filepath)
+    final_wb = openpyxl.load_workbook(dest_filepath)
+    t_ws = station_wb.worksheets[0]
+    final_mm_ws = final_wb['mm_fakts']
+    str_row = find_start_row(station)   # place where to write data in dest worksheet
+    # write mm
+    write_data_chunk(str_row, t_ws, final_mm_ws)
+    final_wb.save(dest_filepath)
+
+
 for key in station_dict:
     print(key)
-    st_path = Path(station_history, '%s.xls' % key)
-    write_t_mm_history(st_path, completename, key)
-
-#TODO check that excel source data file has all rows and sheets
+    # write temperature
+    st_path = Path(station_history, '%s_temp.xlsx' % key)
+    write_t_history(st_path, completename, key)
+    # write mm
+    st_path = Path(station_history, '%s_mm.xlsx' % key)
+    write_mm_history(st_path, completename, key)
