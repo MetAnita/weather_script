@@ -1,3 +1,4 @@
+""""Not needed anymore"""
 import openpyxl
 from pathlib import Path
 from datetime import date, timedelta
@@ -16,8 +17,8 @@ station_dict = {'Ainaži': 'ainazi-47075', 'Alūksne': 'aluksne-4124', 'Bauska':
                 'Zosēni': 'vecpiebalga-322623'}
 
 
-xlsx_file = Path('sample_excel.xlsx')   # source excel
-result_folder_path = Path('results')
+xlsx_file = Path('../sample_excel.xlsx')   # source excel
+result_folder_path = Path('../results')
 
 # Save new xlsx file and update dates in forecast sheet
 

@@ -1,4 +1,4 @@
-'''''Acquire weather forecast from gismeteo.lv'''
+'''''Not needed anymore - Acquire weather forecast from gismeteo.lv'''
 from bs4 import BeautifulSoup
 import requests
 import time
