@@ -1,30 +1,22 @@
 '''''Acquire weather forecast from https://videscentrs.lvgmc.lv'''
-from bs4 import BeautifulSoup
-from selenium.webdriver import Firefox
-from selenium.webdriver.firefox.options import Options
+
 import time
 import openpyxl
 from write_info import completename, dupl_st, tripl_st
-
-station_dict = {'Ainaži': '2-461628', 'Alūksne':'2-461528', 'Bauska': '2-461114', 'Daugavpils': '2-460413', 'Dobele': '2-460312', 'Gulbene': '2-459668', 'Jelgava': '2-459279', 'Kalnciems': '2-459102', 'Kolka': '2-458682', 'Kuldīga': '2-458460', 'Lielpeči': '2-457065', 'Liepāja': '5-2640600', 'Mērsrags': '2-457408', 'Pāvilosta': '2-456827', 'Piedruja': '2-456742', 'Rēzekne': '2-456202', 'Rīga': '2-456172', 'Rūjiena': '2-456008', 'Saldus': '2-455890', 'Sigulda': '2-455718', 'Sīļi': '2-455697', 'Skrīveri': '2-455523', 'Stende': '2-455260', 'Vičaki': '2-454251','Zīlāni': '2-453862','Zosēni': '2-453822'}
-
-options = Options()
-options.headless = True
-browser = Firefox(options=options)
+import requests
 
 
-def test_urls(st_dict):
-    for key in station_dict:
-        url = "https://videscentrs.lvgmc.lv/laika-prognoze/%s" % key
-        print(url)
-        browser.get(url)
-        time.sleep(10)  # to fully load data
-        html = browser.execute_script("return document.documentElement.innerHTML")
-        sel_soup = BeautifulSoup(html, 'html.parser')
-        print(sel_soup.prettify())
+BASE_URL = (
+    "https://videscentrs.lvgmc.lv/data/weather_forecast_for_location_daily?punkts={station_point}"
+)
 
+# station dict with extracted point values, note Lielpeči = Ogre, Sīļi = Silajāni, Vičaki = Ventspils
+station_dict = {'Ainaži': 'P3', 'Alūksne':'P14', 'Bauska': 'P67', 'Daugavpils': 'P75', 'Dobele': 'P54',
+                'Gulbene': 'P23', 'Jelgava': 'P52', 'Kalnciems': 'P43', 'Kolka': 'P769', 'Kuldīga': 'P31',
+                'Lielpeči': 'P42', 'Liepāja': 'P77', 'Mērsrags': 'P729', 'Pāvilosta': 'P36', 'Piedruja': 'P2388',
+                'Rēzekne': 'P62', 'Rīga': 'P28', 'Rūjiena': 'P1', 'Saldus': 'P51', 'Sigulda': 'P24', 'Sīļi': 'P2294',
+                'Skrīveri': 'P911', 'Stende': 'P26', 'Vičaki': 'P13','Zīlāni': 'P226','Zosēni': 'P2017'}
 
-# test_urls(station_dict)
 
 def is_float(element) -> bool:
     try:
@@ -34,49 +26,46 @@ def is_float(element) -> bool:
         return False
 
 
-def mm_temp_9_day_forecast(station):
+# Send a GET request to gather weather forecast JSON file
+def get_station_forecast(url):
+    response = requests.get(url)
+    data = response.json()
+    return data
+
+
+def test_urls(st_dict):
+    for station_name, station_point in st_dict.items():
+        url = BASE_URL.format(station_point=station_point)
+        print(url)
+
+
+def mm_temp_9_day_forecast(test_data):
     """"get 9 day forecast from lvgmc for single station"""
-    t_list = []
-    r_list = []
-    url = "https://videscentrs.lvgmc.lv/laika-prognoze/%s" % station
-    print('Getting: ', url)
-    browser.get(url)
-    time.sleep(10)  # to fully load data
-    html = browser.execute_script("return document.documentElement.innerHTML")
-    sel_soup = BeautifulSoup(html, 'html.parser')
-    each_day = sel_soup.find_all("div", class_="weather-daily-details-item")
 
-    for t in each_day[2:]:  # [1:] to start with tomorrow
-        t_val = t.span.text
-        t_list.append(t_val)
-    t_list_night = t_list[::2]
-    t_list_day = t_list[1::2]
+    day_temperatures = []
+    night_temperatures = []
+    day_mm = []
+    night_mm = []
 
-    nokrisni = sel_soup.find_all("span", string="nokrišņu")
-    new_nokr = [mm.previous_sibling for mm in nokrisni]
+    # Iterate through the data
+    for entry in test_data[1:]:  # skip first entry (today)
+        if entry["laiks"].endswith("1200"):
+            day_temperatures.append(float(entry["temperatura"]))
+            day_mm.append(float(entry["nokrisni_12h"]))
+        elif entry["laiks"].endswith("0000"):
+            night_temperatures.append(float(entry["temperatura"]))
+            night_mm.append(float(entry["nokrisni_12h"]))
 
-    for rain in new_nokr[2:]: # [1:] to start with tomorrow
-        r_value = rain.contents[0].text
-        if is_float(r_value):
-            r_list.append(float(r_value))
-        else:
-            r_list.append("")
-        # try:
-        #     float(r_value)
-        # except ValueError:
-        #     r_value=0.0
-        # r_list.append(float(r_value))
-    mm_night = r_list[::2]
-    mm_day = r_list[1::2]
+    # Print the results
+    print("Day Temperatures:", day_temperatures)
+    print("Night Temperatures:", night_temperatures)
+    print("Day mm:", day_mm)
+    print("Night mm:", night_mm)
 
-    print(station, '  C day temp for 9 days: ', t_list_day)
-    print(station, '  C night temp for 9 days: ', t_list_night)
-    print(station, '  mm day for 9 days: ', mm_day)
-    print(station, '  mm night for 9 days: ', mm_night)
+    return day_temperatures, night_temperatures, day_mm, night_mm
 
-    return t_list_day, t_list_night, mm_day, mm_night
 
-# mm_temp_9_day_forecast("Zīlāni")
+# mm_temp_9_day_forecast(get_station_forecast("https://videscentrs.lvgmc.lv/data/weather_forecast_for_location_daily?punkts=P3"))
 # mm_temp_9_day_forecast("Alūksne")
 
 
@@ -98,21 +87,23 @@ def mm_temp_forecast_duplicates(station_dict, dupl, tripl):
     stations_night_temp = []
     stations_day_mm = []
     stations_night_mm = []
-    for key in station_dict:
-        print('Getting data for: ', key)
-        t_day,t_night, mm_day, mm_night = mm_temp_9_day_forecast(key)
+    for station_name, station_point in station_dict.items():
+        url = BASE_URL.format(station_point=station_point)
+        test_data = get_station_forecast(url)
+        print('Getting data for: ', station_name)
+        t_day,t_night, mm_day, mm_night = mm_temp_9_day_forecast(test_data)
         t_day = check_list_len(t_day)
         t_night = check_list_len(t_night)
         mm_day = check_list_len(mm_day)
         mm_night = check_list_len(mm_night)
-        if key in dupl:
-            print('Appending 2x data for: ', key,' to comply with excel structure' )
+        if station_name in dupl:
+            print('Appending 2x data for: ', station_name,' to comply with excel structure' )
             stations_day_temp.extend(2 * t_day)
             stations_night_temp.extend(2 * t_night)
             stations_day_mm.extend(2 * mm_day)
             stations_night_mm.extend(2 * mm_night)
-        elif key in tripl:
-            print('Appending 3x data for: ', key, ' to comply with excel structure')
+        elif station_name in tripl:
+            print('Appending 3x data for: ', station_name, ' to comply with excel structure')
             stations_day_temp.extend(3 * t_day)
             stations_night_temp.extend(3 * t_night)
             stations_day_mm.extend(3 * mm_day)
@@ -123,8 +114,9 @@ def mm_temp_forecast_duplicates(station_dict, dupl, tripl):
             stations_night_temp.extend(t_night)
             stations_day_mm.extend(mm_day)
             stations_night_mm.extend(mm_night)
-        time.sleep(10)
+        time.sleep(2)
     return stations_day_temp, stations_night_temp, stations_day_mm, stations_night_mm
+
 
 def update_forecast_lvgmc(filename):
     wb_obj = openpyxl.load_workbook(filename)
