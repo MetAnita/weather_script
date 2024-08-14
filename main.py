@@ -3,6 +3,7 @@ from pathlib import Path
 import time
 import requests
 from urllib.error import HTTPError
+from write_info import create_results_file, sample_xlsx
 
 
 # Constants
@@ -57,6 +58,8 @@ def read_weather_history(station, day_from, day_to, param1, param2, station_name
 def main():
     folder_path = create_folder()
     today, yesterday, week_ago = get_dates()
+
+    create_results_file(sample_xlsx)
 
     station_dict = {
         'Ainaži': 30000, 'Alūksne': 30004, 'Bauska': 30011, 'Daugavpils': 30021, 'Dobele': 30022, 'Gulbene': 30034,
