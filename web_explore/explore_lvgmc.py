@@ -1,86 +1,78 @@
 """For development - to explore https://videscentrs.lvgmc.lv/ weather feature - temp & rain extraction """
-from bs4 import BeautifulSoup
-from requests_html import HTMLSession  #to get data from javascript based page
-from urllib.request import urlopen
 import requests
+from datetime import date
 import json
-from selenium.webdriver import Firefox
-from selenium.webdriver.firefox.options import Options
-import time
-import re
 
-options = Options()
-options.headless = True
-browser = Firefox(options=options)
+today = date.today()
+print(today.strftime('%Y%m%d'))
 
-url = "https://videscentrs.lvgmc.lv/laika-prognoze/Zīlāni"
-browser.get(url)
-time.sleep(10)   # to fully load data
-html = browser.execute_script("return document.documentElement.innerHTML")
-# print(html)
-sel_soup = BeautifulSoup(html, 'html.parser')
-# print(sel_soup.prettify())
 
-station_dict = {'Ainaži': '2-461628', 'Alūksne':'2-461528', 'Bauska': '2-461114', 'Daugavpils': '2-460413', 'Dobele': '2-460312', 'Gulbene': '2-459668', 'Jelgava': '2-459279', 'Kalnciems': '2-459102', 'Kolka': '2-458682', 'Kuldīga': '2-458460', 'Lielpeči': '2-457065', 'Liepāja': '5-2640600', 'Mērsrags': '2-457408', 'Pāvilosta': '2-456827', 'Piedruja': '2-456742', 'Rēzekne': '2-456202', 'Rīga': '2-456172', 'Rūjiena': '2-456008', 'Saldus': '2-455890', 'Sigulda': '2-455718', 'Sīļi': '2-455697', 'Skrīveri': '2-455523', 'Stende': '2-455260', 'Vičaki': '2-454251','Zīlāni': '2-453862','Zosēni': '2-453822'}
+# Send a GET request to gather weather forecast JSON file
+def get_station_forecast(url):
+    response = requests.get(url)
+    data = response.json()
+    return data
+
+
+# Extract temperatura and nokrisni_12h values from JSON file
+def explore_weather_json(data):
+    for entry in data:
+        laiks = entry.get("laiks")
+        temperatura = entry.get("temperatura")
+        nokrisni_12h = entry.get("nokrisni_12h")
+        print(f"{laiks} Temperature: {temperatura}°C, Precipitation (12h): {nokrisni_12h}mm")
+
+
+# test example for single station
+url = "https://videscentrs.lvgmc.lv/data/weather_forecast_for_location_daily?punkts=P3"
+test_data = get_station_forecast(url)
+print(test_data)
+explore_weather_json(test_data)
+
+
+# station dict with extracted point values, note Lielpeči = Ogre, Sīļi = Silajāni, Vičaki = Ventspils
+station_dict = {'Ainaži': 'P3', 'Alūksne':'P14', 'Bauska': 'P67', 'Daugavpils': 'P75', 'Dobele': 'P54',
+                'Gulbene': 'P23', 'Jelgava': 'P52', 'Kalnciems': 'P43', 'Kolka': 'P769', 'Kuldīga': 'P31',
+                'Lielpeči': 'P42', 'Liepāja': 'P77', 'Mērsrags': 'P729', 'Pāvilosta': 'P36', 'Piedruja': 'P2388',
+                'Rēzekne': 'P62', 'Rīga': 'P28', 'Rūjiena': 'P1', 'Saldus': 'P51', 'Sigulda': 'P24', 'Sīļi': 'P2294',
+                'Skrīveri': 'P911', 'Stende': 'P26', 'Vičaki': 'P13','Zīlāni': 'P226','Zosēni': 'P2017'}
 
 
 def test_urls(st_dict):
-    for key in station_dict:
-        url = "https://videscentrs.lvgmc.lv/laika-prognoze/%s" % key
+    for station_name, station_point in st_dict.items():
+        url = f"https://videscentrs.lvgmc.lv/data/weather_forecast_for_location_daily?punkts={station_point}"
         print(url)
-        # url = requests.get("https://videscentrs.lvgmc.lv/laika-prognoze/Kolka")
-        soup = BeautifulSoup(url.content, "lxml")
-        print(soup.prettify())
+        response = requests.get(url)
+        data = response.json()
+        print(data)
 
 
-# test_urls(station_dict)
+test_urls(station_dict)
 
 
-each_day = sel_soup.find_all("div", class_="weather-daily-details-item")
+# Initialize lists for day and night temperatures
+day_temperatures = []
+night_temperatures = []
+day_mm = []
+night_mm = []
+
+# Iterate through the data
+for entry in test_data[1:]:     # skip first entry (today)
+    if entry["laiks"].endswith("1200"):
+        day_temperatures.append(float(entry["temperatura"]))
+        day_mm.append(float(entry["nokrisni_12h"]))
+    elif entry["laiks"].endswith("0000"):
+        night_temperatures.append(float(entry["temperatura"]))
+        night_mm.append(float(entry["nokrisni_12h"]))
+
+# Print the results
+print("Day Temperatures:", day_temperatures)
+print("Night Temperatures:", night_temperatures)
+print("Day mm:", day_mm)
+print("Night mm:", night_mm)
 
 
 
-print('test the temp - day and night full text')
-for t in each_day:
-    t_value = t.text
-    print(t_value)
-
-# temperature example from webpage
-# <div class="weather-daily-details-prop"><div><span class="emphasis">-13</span> °C</div></div>
-
-print('test the temp - day and night values')
-
-t_list=[]
-
-for t in each_day[1:]:  #[1:] to skip first entry that is for today
-    t_val=t.span.text
-    t_list.append(t_val)
-    print(t_val)
-    # print(t.contents[0])
-    # print(t.contents[1])
-    # print(t.contents[2])
-    # print(t.contents[3])
-
-# a[start_index:end_index:step]
-# split day and night values
-t_list_day = t_list[::2]
-print(t_list_day)
-t_list_night = t_list[1::2]
-print(t_list_night)
-
-# nokrišņi example from webpage
-# < div class ="weather-daily-details-prop" > < div >
-# < span class ="emphasis" >0< / span >mm< / div >< span > nokrišņu< / span >
-
-nokrisni = sel_soup.find_all("span", string="nokrišņu")
-print('test the rain')
-
-new_nokr = [ mm.previous_sibling for mm in nokrisni ]
-
-for rain in new_nokr:
-    # r_value = rain.text
-    r_value = rain.contents[0].text
-    print(r_value)
 
 
 # validate list length
