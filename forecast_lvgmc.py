@@ -47,8 +47,8 @@ def mm_temp_9_day_forecast(test_data):
     day_mm = []
     night_mm = []
 
-    # Iterate through the data
-    for entry in test_data[1:]:  # skip first entry (today)
+    # Iterate through the data TODO: when script runs in the morning forecast data contains 2 'today' entries to skip, but after 12:00 only 1 -
+    for entry in test_data[2:]:  # skip first entry (today)
         if entry["laiks"].endswith("1200"):
             day_temperatures.append(float(entry["temperatura"]))
             day_mm.append(float(entry["nokrisni_12h"]))
