@@ -1,11 +1,8 @@
 import openpyxl
-from datetime import date
 from openpyxl.styles import Font
-from openpyxl.styles import colors
 from pathlib import Path
 from datetime import date, timedelta
-from tqdm import trange
-import forecast
+from web_explore import forecast
 import xlrd
 
 xlsx_file = Path('../data', 'sample_excel.xlsx')
