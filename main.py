@@ -16,7 +16,7 @@ HEADERS = {
     'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0',
 }
 RETRY_DELAY = 5
-DOS_DELAY = 10
+DOS_DELAY = 6
 
 
 def create_folder():
