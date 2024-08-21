@@ -47,14 +47,16 @@ def mm_temp_9_day_forecast(test_data):
     day_mm = []
     night_mm = []
 
-    # Iterate through the data TODO: when script runs in the morning forecast data contains 2 'today' entries to skip, but after 12:00 only 1 -
-    for entry in test_data[2:]:  # skip first entry (today)
+    # Iterate through the data TODO: when script runs in the morning forecast data contains 2 'today' entries, but after 12:00 only 1 -
+    for entry in test_data:  # [1:]:  # skip first entry (today)
         if entry["laiks"].endswith("1200"):
             day_temperatures.append(float(entry["temperatura"]))
-            day_mm.append(float(entry["nokrisni_12h"]))
+            value = 0 if entry["nokrisni_12h"] == "-" else float(entry["nokrisni_12h"])
+            day_mm.append(value)
         elif entry["laiks"].endswith("0000"):
             night_temperatures.append(float(entry["temperatura"]))
-            night_mm.append(float(entry["nokrisni_12h"]))
+            value = 0 if entry["nokrisni_12h"] == "-" else float(entry["nokrisni_12h"])
+            night_mm.append(value)
 
     # Print the results
     print("Day Temperatures:", day_temperatures)
@@ -73,10 +75,10 @@ def check_list_len(l):
     """"lvgmc webpage may have incorrect data displayed in some forecasts, this function validates correct lenght
     and prepares data for excel form"""
     if len(l)==9:
-        l.append("")
+        l = [""] + l  # increases list length by adding empty value in the beginning
     elif len(l)<9:
         l = [""] * 10
-    elif len(l)>9:
+    elif len(l)>10:
         l = [""] * 10
     return l
 

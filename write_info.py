@@ -29,9 +29,9 @@ def create_results_file(sample_xlsx):
     dd = 0
     for row in sheet.iter_rows(min_row=3, max_row=12, max_col=5, min_col=5):
         for cell in row:
-            dd += 1
             val = (date.today() + timedelta(days=dd)).strftime('%d.%m.%Y')
             cell.value = val
+            dd += 1
             print(cell.value, end=" ")
 
     xlsx_filename = "laika_apstakli_fakts_prognoze_%s.xlsx" % date.today().strftime('%d%m%Y')

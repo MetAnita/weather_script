@@ -65,13 +65,13 @@ def extract_temperatures(soup, temp_type):
         temp_str = temp_str.replace('°', '').strip()  # Remove the degree symbol and any extra whitespace
         return int(temp_str)
 
-    return [clean_temp(span.get_text()) for span in temperature_spans[1:]]  # skip today
+    return [clean_temp(span.get_text()) for span in temperature_spans]     #  temperature_spans[1:]]  # skip today
 
 
 def extract_precipitations(soup):
     """Extract precipitation data from the soup."""
     precipitations = []
-    precip_divs = soup.find_all('div', class_='daily-weather-list-item__precipitation')[1:]  # skip today
+    precip_divs = soup.find_all('div', class_='daily-weather-list-item__precipitation')  # [1:]  # skip today
 
     for div in precip_divs:
         span = div.find('span', class_='Precipitation-module__main-sU6qN')
@@ -91,8 +91,8 @@ def compile_forecast_data():
         print(f"Processing {station}...")
         avg_temps, mm = fetch_weather_data(station)
         if avg_temps and mm:
-            avg_temps.append("")  # Placeholder for Excel formatting
-            mm.append("")
+            #avg_temps.append("")  # Placeholder for Excel formatting
+            #mm.append("")
             if station in dupl_st:
                 temperatures.extend(2 * avg_temps)
                 precipitations.extend(2 * mm)
@@ -122,4 +122,5 @@ def update_excel_with_forecast(filename):
 
 
 if __name__ == "__main__":
-    update_excel_with_forecast(completename)
+   update_excel_with_forecast(completename)
+
