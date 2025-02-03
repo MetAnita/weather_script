@@ -79,7 +79,7 @@ def check_list_len(l):
     elif len(l)<9:
         l = [""] * 10
     elif len(l)>10:
-        l = [""] * 10
+        l = l[:10]  # take first 10 values
     return l
 
 
